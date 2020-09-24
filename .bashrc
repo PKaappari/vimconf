@@ -204,3 +204,9 @@ elif type compctl &>/dev/null; then
   compctl -K _npm_completion npm
 fi
 ###-end-npm-completion-###
+
+if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
+      tmux attach -t default || tmux new -s default
+fi
+
+set -o vi

@@ -1,70 +1,27 @@
 set updatetime=300
 
 call plug#begin('~/.vim/plugged')
-    Plug 'pangloss/vim-javascript'
     Plug 'tpope/vim-fugitive'
-    Plug 'leafgarland/typescript-vim'
-    Plug 'peitalin/vim-jsx-typescript'
-    Plug 'styled-components/vim-styled-components', {'branch': 'main'}
-    Plug 'jparise/vim-graphql'
-    Plug 'neoclide/coc.nvim', {'branch': 'release'}
     Plug 'vim-airline/vim-airline'
     Plug 'vim-airline/vim-airline-themes'
     Plug 'preservim/nerdtree'
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-    Plug 'prettier/vim-prettier', {
-          \ 'do': 'npm install',
-          \ 'for': ['javascript', 'typescript', 'css', 'less', 'sass', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html']}
     Plug 'ryanoasis/vim-devicons'
     Plug 'tpope/vim-commentary'
     Plug 'morhetz/gruvbox'
     Plug 'edkolev/tmuxline.vim'
-    Plug 'mileszs/ack.vim'
+    Plug 'rust-lang/rust.vim'
+    Plug 'vim-syntastic/syntastic'
+    Plug 'majutsushi/tagbar'
+    Plug 'NLKNguyen/papercolor-theme'
+    Plug 'rafi/awesome-vim-colorschemes'
+    Plug 'sheerun/vim-polyglot'
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
-function! ShowDocIfNoDiagnostic(timer_id)
-    if (coc#util#has_float() == 0)
-        silent call CocActionAsync('doHover')
-    endif
-endfunction
-
-function! s:show_hover_doc()
-    call timer_start(300, 'ShowDocIfNoDiagnostic')
-endfunction
-
-autocmd CursorHold * silent call CocActionAsync('highlight')
-autocmd CursorHold * :call <SID>show_hover_doc()
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gr <Plug>(coc-references)
-nnoremap <silent> <space>d :<C-u>CocList diagnostics<cr>
-nnoremap <silent> <space>s :<C-u>CocList -I symbols<cr>
-nmap <leader>do <Plug>(coc-codeaction)
-nmap <leader>rn <Plug>(coc-rename)
-
-autocmd vimenter * NERDTree
 let NERDTreeShowHidden=1
-nmap <C-n> :NERDTreeToggle <CR>
 
-
-function! s:check_back_space() abort
-    let col = col('.') - 1
-      return !col || getline('.')[col - 1]  =~# '\s'
-    endfunction
-
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-    " Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
-
-let g:prettier#config#tab_width = 4
-let g:prettier#config#use_tabs = 'true'
-
-colorscheme gruvbox
+colorscheme minimalist
 set background=dark
 
 let g:tmuxline_preset = {
@@ -76,3 +33,58 @@ let g:tmuxline_preset = {
     \'x'    : '#{?client_prefix,Prefix,      }',
     \'y'    : ['%a', '%e-%b-%Y', '%l:%M%p'],
     \'z'    : '#h'}
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_type = 1
+let g:syntastic_check_on_wq = 0
+let g:rustfmt_autosave = 1
+
+let g:clipboard = {
+          \   'name': 'myClipboard',
+          \   'copy': {
+          \      '+': 'tmux load-buffer -',
+          \      '*': 'tmux load-buffer -',
+          \    },
+          \   'paste': {
+          \      '+': 'tmux save-buffer -',
+          \      '*': 'tmux save-buffer -',
+          \   },
+          \   'cache_enabled': 1,
+          \ }
+
+" COC settings
+" Use <c-space> to trigger completion.
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+"Key mappings
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <leader>rn <Plug>(coc-rename)
+
+"COC Actions
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+
+"COC completion with tab
+inoremap <silent><expr> <TAB>
+    \ pumvisible() ? "\<C-n>" :
+    \ <SID>check_back_space() ? "\<TAB>" :
+    \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
